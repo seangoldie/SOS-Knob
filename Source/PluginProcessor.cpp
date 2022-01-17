@@ -135,10 +135,8 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
 {
     juce::ScopedNoDenormals noDenormals;
     
-    /* my code additions begin - (4) */
     using namespace std::chrono;
-    auto start = high_resolution_clock::now(); //capture time at beginning of block
-    /* my code additions end - (4) */
+    auto start = high_resolution_clock::now(); // capture time at beginning of block
     
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -150,7 +148,7 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        /* ORIGINAL AUDIO PROCESSING COMPONENTS BEGIN */
+        /* JACK'S ORIGINAL AUDIO PROCESSING COMPONENTS BEGIN */
         
         // declare and define `N` as the length of the buffer
         int N = buffer.getNumSamples();
@@ -180,7 +178,7 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             // high-pass filter audio if toggle is on
             if (highpass)
             {
-                if (!channel) //process the left channel
+                if (!channel) // process the left channel
                 {
                     // shift register values
                     for (k = hp_K; k > 0; --k)
@@ -200,7 +198,7 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
                         h += hp_b[k] * hp_reg_l[k];
                     }
                 }
-                else //process the right channel
+                else // process the right channel
                 {
                     // shift register values
                     for (k = hp_K; k > 0; --k)
@@ -226,8 +224,8 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
             // otherwise, pass directly to next temporary buffer
             else temp_buff_2[n] = temp_buff_1[n];
             
-            /* NEW SWITCHCASE ADDITIONS BEGIN*/
-//            main_knob = main_knob / 100;
+            /* SEAN'S NEW ADDITIONS BEGIN*/
+            
             short int polarity = temp_buff_2[n]/abs(temp_buff_2[n]);
             double threshold = main_knob/100.0f;
             switch (mode)
@@ -262,7 +260,7 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
                     break;
             }
             
-            /* NEW SWITCHCASE ADDITIONS END */
+            /* JACK'S ADDITIONS BEGIN */
             
             // low-pass filter audio if toggle is on
             if (lowpass)
@@ -348,12 +346,11 @@ void OneKnobVSTAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto stop = high_resolution_clock::now(); //capture time at end of block
     auto latency = duration_cast<microseconds>(stop - start); //cast difference to latency in microseconds
     // display latency in debugger output window (comment out if not in use--adds to latency when engaged)
-//    std::cout << "Processing Latency: " << latency.count() << " microseconds" << std::endl;
+
     // set latency register index
     ++lri;
     lri = lri % 100;
     latency_reg[lri] = latency.count(); //insert current block's latency value into register
-    /* my code additions end - (5) */
 }
 
 //==============================================================================
@@ -372,7 +369,6 @@ void OneKnobVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // write parameter state information to memory
     
-    /* original code begins */
     destData.reset();
     
     state.main_knob = main_knob;
@@ -386,14 +382,12 @@ void OneKnobVSTAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     state.prev_mode = mode;
     
     destData.append(&state, sizeof(state));
-    /* original code ends */
 }
 
 void OneKnobVSTAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // restore parameter state information from memory
     
-    /* original code begins */
     const parameterValues* newData = reinterpret_cast<const parameterValues*>(data);
     
     main_knob = newData[0].main_knob;
@@ -405,7 +399,6 @@ void OneKnobVSTAudioProcessor::setStateInformation (const void* data, int sizeIn
     safe = newData[0].safe;
     auto_gain = newData[0].auto_gain;
     mode = newData[0].prev_mode;
-    /* original code ends */
 }
 
 // This creates new instances of the plugin

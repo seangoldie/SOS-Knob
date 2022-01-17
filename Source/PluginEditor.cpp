@@ -1,20 +1,15 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
-/* my code additions begin - (1) */
 #define GUI_WD 520 //pixels
 #define GUI_HT 380 //pixels
 #define DB_LOW -60.0f //decibels
 #define DB_HIGH 12.0f //decibels
 #define INIT 0.0f //initialize
 #define INC 0.1f //increment
-/* my code additions end - (1) */
 
 OneKnobVSTAudioProcessorEditor::OneKnobVSTAudioProcessorEditor (OneKnobVSTAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    /* GUI COMPONENTS BEGIN */
-    
     setResizable(false, false);
     background = juce::ImageCache::getFromMemory(BinaryData::SOSKnobBG1_0_png, BinaryData::SOSKnobBG1_0_pngSize);
     
@@ -87,22 +82,16 @@ OneKnobVSTAudioProcessorEditor::OneKnobVSTAudioProcessorEditor (OneKnobVSTAudioP
     latency_label.setText(" ", juce::dontSendNotification);
     latency_label.attachToComponent(&get_latency, true);
     
-    /* new additions begin */
     addAndMakeVisible(mode);
-//    mode.Component::setColour(juce::TextButton::textColourOnId, juce::Colours::grey);
-//    mode.Component::setColour(juce::TextButton::textColourOffId, juce::Colours::black);
     mode.setButtonText("FLAVOR");
     mode.setColour(juce::TextButton::buttonColourId, juce::Colours::orange);
     mode.setColour(juce::TextButton::textColourOnId, juce::Colours::black);
     mode.addListener(this);
-    /* new additions end */
     
     // default application window dimensions
     setSize(GUI_WD, GUI_HT);
     // default typeface
     font.setTypefaceName("Futura");
-    
-    /* GUI COMPONENTS END */
 }
 
 OneKnobVSTAudioProcessorEditor::~OneKnobVSTAudioProcessorEditor()
@@ -112,9 +101,6 @@ OneKnobVSTAudioProcessorEditor::~OneKnobVSTAudioProcessorEditor()
 
 void OneKnobVSTAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    /* my code additions begin - (6) */
-    /* set GUI look and feel */
-//    g.fillAll(juce::Colours::black);
     g.drawImageAt(background, 0, 0);
 
     g.setColour(juce::Colours::white);
@@ -130,13 +116,10 @@ void OneKnobVSTAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawText("Cow Elvis DSP", getWidth() * 0.375, getHeight() * 0.86, getWidth() * 0.25, getHeight() * 0.10, juce::Justification::centredTop);
     g.setFont(15.0f);
     g.drawText("OUT", getWidth() * 0.75, getHeight() * 0.20, getWidth() * 0.125, getHeight() * 0.10, juce::Justification::centredTop);
-    /* my code additions end - (6) */
 }
 
 void OneKnobVSTAudioProcessorEditor::resized()
 {
-    /* my code additions begin - (7) */
-    /* set relative positions of GUI elements */
     reset_button.setBounds(5, 5, 50, 20);
     
     gain_in_slider.setBounds(getWidth() * 0.125, getHeight() * 0.3, getWidth() * 0.125, getHeight() * 0.45);
@@ -182,7 +165,6 @@ void OneKnobVSTAudioProcessorEditor::resized()
         gain_out_slider.setColour(juce::Slider::trackColourId, juce::Colours::darkgrey);
     }
     
-    /* new additions begin */
     if (audioProcessor.mode == 0)
         {
             main_knob.setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::darkred);
@@ -213,14 +195,10 @@ void OneKnobVSTAudioProcessorEditor::resized()
             main_knob.setColour(juce::Slider::thumbColourId, juce::Colours::turquoise);
             mode.setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
         }
-    
-    /* new additions end */
-    
 }
 
 void OneKnobVSTAudioProcessorEditor::sliderValueChanged(juce::Slider *slider)
 {
-    /* slider actions */
     // set input gain with GUI slider
     if (slider == &gain_in_slider) audioProcessor.gain_in_db = gain_in_slider.getValue();
     // set clipper threshold with GUI slider
@@ -242,7 +220,6 @@ void OneKnobVSTAudioProcessorEditor::sliderValueChanged(juce::Slider *slider)
 
 void OneKnobVSTAudioProcessorEditor::buttonClicked(juce::Button *button)
 {
-    /* button actions */
     if (button == &reset_button)
     {
         // `reset_button` re-initializes all parameters (except for safe-mode)
@@ -434,8 +411,6 @@ void OneKnobVSTAudioProcessorEditor::buttonClicked(juce::Button *button)
             latency_label.setText(dest, juce::dontSendNotification);
         }
     }
-    
-    /* new additions begin */
     if (button == &mode)
     {
         if(audioProcessor.mute)
@@ -481,5 +456,4 @@ void OneKnobVSTAudioProcessorEditor::buttonClicked(juce::Button *button)
             }
         }
     }
-    /* new additions end */
 }
